@@ -2,7 +2,7 @@
 
 from generalize_config.config_file import read_config_file, read_config_file_if_readable
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
 
 __all__ = (
     "__version__",
