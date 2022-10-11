@@ -4,20 +4,18 @@ import os
 import tempfile
 from unittest import TestCase, main
 
-from generalize_config.config_file import read_config_file
+from generalize_config.read_config import read_config_file
 
-YAML_SAMPLE = """
-test:
-  verbose: 2
-  developer: true
-  port: 80
+INI_SAMPLE = """
+[test]
+flag=Hello
 """
 
 
-class ConfigFileYamlTestCase(TestCase):
+class IniTestCase(TestCase):
     def setUp(self):
-        fp = tempfile.NamedTemporaryFile(suffix=".yaml", delete=False)
-        fp.write(YAML_SAMPLE.encode("utf-8"))
+        fp = tempfile.NamedTemporaryFile(suffix=".ini", delete=False)
+        fp.write(INI_SAMPLE.encode("utf-8"))
         fp.close()
         self.test_file_path = fp.name
 
@@ -27,13 +25,10 @@ class ConfigFileYamlTestCase(TestCase):
 
     def test_read_config_file(self):
         config = read_config_file(self.test_file_path, "test")
-        self.assertEqual(2, config.verbose)
-        self.assertIsInstance(config.developer, bool)
-        self.assertTrue(config.developer)
-        self.assertEqual(80, config.port)
+        self.assertEqual("Hello", config.flag)
 
     def test_subsection_error(self):
-        with self.assertRaises(KeyError):
+        with self.assertRaises(IndexError):
             read_config_file(self.test_file_path, "test", "kk")
 
 

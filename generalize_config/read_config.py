@@ -2,7 +2,6 @@
 
 import os
 from argparse import Namespace
-from typing import Optional
 
 from generalize_config.parser.cfg_parse import read_cfg_file
 from generalize_config.parser.json_parse import read_json_file
@@ -50,15 +49,14 @@ def read_config_file_by_extension(
     e = normalize_extension(extension)
 
     if e in CFG_EXTENSIONS:
-        if subsection:
-            if len(subsection) >= 2:
-                raise IndexError(
-                    f"{e} files do not allow subsections greater than 2-depth"
-                )
-            section = subsection[0]
-        else:
-            section = str()
-        return read_cfg_file(path, section, encoding=encoding)
+        if not subsection:
+            raise ValueError(
+                "When reading a `cfg` or `ini` file, there must be 1 section"
+            )
+        if len(subsection) >= 2:
+            raise IndexError(f"{e} files do not allow subsections greater than 2-depth")
+        assert len(subsection) == 1
+        return read_cfg_file(path, subsection[0], encoding=encoding)
     elif e in JSON_EXTENSIONS:
         return read_json_file(path, *subsection, encoding=encoding)
     elif e in YAML_EXTENSIONS:
@@ -74,20 +72,3 @@ def read_config_file(path: str, *subsection: str, encoding="utf-8") -> Namespace
         *subsection,
         encoding=encoding,
     )
-
-
-def read_config_file_if_readable(
-    path: str,
-    *subsection: str,
-    encoding="utf-8",
-) -> Optional[Namespace]:
-    if not path:
-        return None
-    try:
-        if not os.path.isfile(path):
-            return None
-        if not os.access(path, os.R_OK):
-            return None
-        return read_config_file(path, *subsection, encoding=encoding)
-    except BaseException as e:  # noqa
-        return None
