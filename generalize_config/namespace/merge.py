@@ -6,7 +6,18 @@ from typing import Optional, TypeVar
 AnyNamespace = TypeVar("AnyNamespace", bound=Namespace)
 
 
-def left_join(*namespaces: Optional[AnyNamespace]) -> AnyNamespace:
+def mergeable_attribute(ns: Namespace, key: str, none_is_exist: bool) -> bool:
+    if not hasattr(ns, key):
+        return True
+    if getattr(ns, key) is not None:
+        return False
+    return not none_is_exist
+
+
+def merge_left_first(
+    *namespaces: Optional[AnyNamespace],
+    left_none_is_exist=False,
+) -> AnyNamespace:
     """
     Insert if the attribute in the **left** namespace does not exist or is None.
     """
@@ -25,7 +36,7 @@ def left_join(*namespaces: Optional[AnyNamespace]) -> AnyNamespace:
             continue
 
         for key, value in vars(ns).items():
-            if getattr(left, key, None) is None:
+            if mergeable_attribute(left, key, left_none_is_exist):
                 setattr(left, key, value)
 
     if left is None:
@@ -34,7 +45,10 @@ def left_join(*namespaces: Optional[AnyNamespace]) -> AnyNamespace:
     return left
 
 
-def right_join(*namespaces: Optional[AnyNamespace]) -> AnyNamespace:
+def merge_right_first(
+    *namespaces: Optional[AnyNamespace],
+    right_none_is_exist=False,
+) -> AnyNamespace:
     """
     Insert if the attribute in the **right** namespace does not exist or is None.
     """
@@ -44,4 +58,4 @@ def right_join(*namespaces: Optional[AnyNamespace]) -> AnyNamespace:
 
     nss = list(namespaces)
     nss.reverse()
-    return left_join(*nss)
+    return merge_left_first(*nss, left_none_is_exist=right_none_is_exist)

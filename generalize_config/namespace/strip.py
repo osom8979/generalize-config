@@ -7,8 +7,9 @@ AnyNamespace = TypeVar("AnyNamespace", bound=Namespace)
 
 
 def strip_none_attributes(namespace: AnyNamespace) -> AnyNamespace:
-    keys = list(vars(namespace).keys())
-    for key in keys:
+    immutable_keys = list(vars(namespace).keys())
+    for key in immutable_keys:
+        assert hasattr(namespace, key)
         if getattr(namespace, key) is None:
             delattr(namespace, key)
     return namespace
