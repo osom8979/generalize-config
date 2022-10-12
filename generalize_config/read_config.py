@@ -2,6 +2,8 @@
 
 import os
 from argparse import Namespace
+from pathlib import Path
+from typing import Union
 
 from generalize_config.parser.cfg_parse import read_cfg_file
 from generalize_config.parser.json_parse import read_json_file
@@ -10,14 +12,6 @@ from generalize_config.parser.yaml_parse import read_yaml_file
 CFG_EXTENSIONS = ("cfg", "ini")
 JSON_EXTENSIONS = ("json",)
 YAML_EXTENSIONS = ("yaml", "yml")
-
-
-def is_readable_file(path: str) -> bool:
-    if not os.path.isfile(path):
-        return False
-    if not os.access(path, os.R_OK):
-        return False
-    return True
 
 
 def normalize_extension(extension: str) -> str:
@@ -65,10 +59,12 @@ def read_config_file_by_extension(
     raise RuntimeError(f"Unsupported file extension: {extension}")
 
 
-def read_config_file(path: str, *subsection: str, encoding="utf-8") -> Namespace:
-    return read_config_file_by_extension(
-        path,
-        os.path.splitext(path)[1],
-        *subsection,
-        encoding=encoding,
-    )
+def read_config_file(
+    path: Union[str, Path],
+    *subsection: str,
+    encoding="utf-8",
+) -> Namespace:
+    path = path if isinstance(path, str) else str(path)
+    assert isinstance(path, str)
+    ext = os.path.splitext(path)[1]
+    return read_config_file_by_extension(path, ext, *subsection, encoding=encoding)

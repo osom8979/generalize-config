@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 from argparse import Namespace
-from typing import Optional, TypeVar
+from typing import Optional
 
-AnyNamespace = TypeVar("AnyNamespace", bound=Namespace)
+from generalize_config.namespace.types import AnyNamespace
 
 
 def mergeable_attribute(ns: Namespace, key: str, none_is_exist: bool) -> bool:

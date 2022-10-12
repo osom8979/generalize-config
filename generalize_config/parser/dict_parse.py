@@ -3,6 +3,8 @@
 from argparse import Namespace
 from typing import Any, Dict, Optional, Union
 
+from generalize_config.inspect.member import get_public_instance_attributes
+
 
 def parse_dict(
     obj: Union[Dict[str, Any], Any],
@@ -19,9 +21,5 @@ def parse_dict(
                 raise KeyError(f"A `{key}` key not in the object.")
             return parse_dict(getattr(obj, key), *subsection[1:])
 
-    # Last depth.
-
-    if not isinstance(obj, dict):
-        raise TypeError("The last depth object must be a dictionary type.")
-
-    return Namespace(**obj)
+    # The final depth of the recursion.
+    return Namespace(**{k: v for k, v in get_public_instance_attributes(obj)})

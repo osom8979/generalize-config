@@ -1,9 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from argparse import Namespace
-from typing import TypeVar
-
-AnyNamespace = TypeVar("AnyNamespace", bound=Namespace)
+from generalize_config.namespace.types import AnyNamespace
 
 
 def strip_none_attributes(namespace: AnyNamespace) -> AnyNamespace:

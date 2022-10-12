@@ -4,7 +4,7 @@ import os
 import tempfile
 from unittest import TestCase, main
 
-from generalize_config.parser.yaml_parse import read_yaml_file
+from generalize_config.parser.yaml_parse import read_yaml_file, read_yaml_text
 
 TEST_BIND = "localhost"
 TEST_PORT = 6666
@@ -31,6 +31,11 @@ class YamlParseTestCase(TestCase):
     def tearDown(self):
         os.unlink(self.test_yaml_path)
         self.assertFalse(os.path.exists(self.test_yaml_path))
+
+    def test_read_yaml_text(self):
+        config = read_yaml_text("test1: aaa\ntest2: bbb")
+        self.assertEqual("aaa", config.test1)
+        self.assertEqual("bbb", config.test2)
 
     def test_read_yaml_file(self):
         config = read_yaml_file(self.test_yaml_path, "test")

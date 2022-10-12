@@ -4,7 +4,7 @@ import os
 import tempfile
 from unittest import TestCase, main
 
-from generalize_config.parser.json_parse import read_json_file
+from generalize_config.parser.json_parse import read_json_file, read_json_text
 
 TEST_BIND = "localhost"
 TEST_PORT = 6666
@@ -33,6 +33,11 @@ class JsonParseTestCase(TestCase):
     def tearDown(self):
         os.unlink(self.test_json_path)
         self.assertFalse(os.path.exists(self.test_json_path))
+
+    def test_read_json_text(self):
+        config = read_json_text('{"test1": 10, "test2": 20}')
+        self.assertEqual(10, config.test1)
+        self.assertEqual(20, config.test2)
 
     def test_read_json_file(self):
         config = read_json_file(self.test_json_path, "test")
