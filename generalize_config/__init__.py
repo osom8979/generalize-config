@@ -8,7 +8,7 @@ from generalize_config.parser.json_parse import read_json_file
 from generalize_config.parser.yaml_parse import read_yaml_file
 from generalize_config.read_config import read_config_file
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 
 __all__ = (
     "__version__",
