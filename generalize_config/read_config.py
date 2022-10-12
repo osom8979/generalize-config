@@ -3,7 +3,7 @@
 import os
 from argparse import Namespace
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 from generalize_config.parser.cfg_parse import read_cfg_file
 from generalize_config.parser.json_parse import read_json_file
@@ -68,3 +68,20 @@ def read_config_file(
     assert isinstance(path, str)
     ext = os.path.splitext(path)[1]
     return read_config_file_by_extension(path, ext, *subsection, encoding=encoding)
+
+
+def read_config_file_if_readable(
+    path: Union[str, Path],
+    *subsection: str,
+    encoding="utf-8",
+) -> Optional[Namespace]:
+    if not path:
+        return None
+    try:
+        if not os.path.isfile(path):
+            return None
+        if not os.access(path, os.R_OK):
+            return None
+        return read_config_file(path, *subsection, encoding=encoding)
+    except BaseException as e:  # noqa
+        return None

@@ -6,7 +6,7 @@ from generalize_config.parser.cfg_parse import read_cfg_file
 from generalize_config.parser.env_parse import read_os_envs, read_os_envs_file
 from generalize_config.parser.json_parse import read_json_file
 from generalize_config.parser.yaml_parse import read_yaml_file
-from generalize_config.read_config import read_config_file
+from generalize_config.read_config import read_config_file, read_config_file_if_readable
 
 __version__ = "1.2.0"
 
@@ -16,6 +16,7 @@ __all__ = (
     "merge_right_first",
     "read_cfg_file",
     "read_config_file",
+    "read_config_file_if_readable",
     "read_json_file",
     "read_os_envs",
     "read_os_envs_file",
