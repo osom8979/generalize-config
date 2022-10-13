@@ -63,6 +63,8 @@ The supported extension types are:
 - JSON extensions: `.json`
 - CFG extensions: `.cfg`, `.ini`
 
+> :warning: When using a CFG file, there must be 1 subsection argument.
+
 ### Environment variable
 
 Environment Variable Filtering
@@ -102,6 +104,75 @@ args = parser.parse_known_args()[0]
 result = Namespace()
 merge_left_first(result, args, ...)
 print(result)
+```
+
+### Generalized method
+
+The recommended reading order is:
+
+1. Fixed variable (higher priority)
+2. Command line arguments
+3. Configuration file received as a command line argument
+4. Environment Variables
+5. Configuration file received as environment variable
+6. Environment variable pointing to file
+7. Default variable (low priority)
+
+The function that implements the above is `read_generalize_configs`:
+
+```python
+from argparse import ArgumentParser, Namespace
+from generalize_config import read_generalize_configs
+
+parser = ArgumentParser()
+# add_argument ...
+
+default_args = Namespace(...)
+
+result = read_generalize_configs(
+    parser=parser,
+    subsection="application",
+    env_prefix="ENV_",
+    env_suffix="_FILE",
+    config_key="config",
+    default=default_args,
+)
+print(result)
+```
+
+## Things to know
+
+When using
+[argparse.ArgumentParser](https://docs.python.org/3/library/argparse.html#argumentparser-objects)
+you need to make sure that all values not entered are returned as `None`.
+Otherwise, the `merge_left_first` function may malfunction.
+
+Also, variables acquired through CFG files and environment variables are
+fixed as `string` type. To solve this you need to deserialize like this:
+
+Install [type-serialize](https://github.com/osom8979/type-serialize):
+
+```bash
+pip install type-serialize
+```
+
+Add type annotation to `Namespace` and then call `deserialize`:
+
+```python
+from argparse import Namespace
+from generalize_config import read_generalize_configs
+from type_serialize import deserialize
+
+class Config(Namespace):
+    host: str
+    port: int
+    # ...
+
+ns = read_generalize_configs(...)
+config = deserialize(ns, Config)
+assert isinstance(config, Config)
+
+print(config)
 ```
 
 ## License
