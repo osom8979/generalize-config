@@ -5,6 +5,7 @@ from argparse import ArgumentParser, Namespace
 from tempfile import NamedTemporaryFile
 from unittest import TestCase, main
 
+from generalize_config.generalize import read_generalize_configs
 from generalize_config.namespace.merge import merge_left_first
 from generalize_config.parser.env_parse import read_os_envs, read_os_envs_file
 from generalize_config.read_config import read_config_file
@@ -45,7 +46,7 @@ def write_temporary_file(content: str, suffix: str) -> str:
     return fp.name
 
 
-class ComplexTestCase(TestCase):
+class GeneralizeTestCase(TestCase):
     def setUp(self):
         self.yaml_file = write_temporary_file(YAML_SAMPLE, ".yaml")
         self.value_file = write_temporary_file(VALUE_SAMPLE, ".txt")
@@ -55,6 +56,7 @@ class ComplexTestCase(TestCase):
         self.assertTrue(os.path.exists(self.value_file))
         self.assertTrue(os.path.exists(self.cfg_file))
 
+        self.subsection = "test"
         self.prefix = "TEST_"
         self.suffix = "_FILE"
         self.context = EnvironmentContext(
@@ -88,7 +90,7 @@ class ComplexTestCase(TestCase):
         self.assertIsNone(empty_args.host)
         self.assertIsNone(empty_args.port)
 
-    def test_complex(self):
+    def test_generalize_configs(self):
         parser = test_argument_parser()
         args = ["--config", self.yaml_file]
         cmds = parser.parse_known_args(args)[0]
@@ -100,7 +102,7 @@ class ComplexTestCase(TestCase):
         self.assertIsNone(cmds.host)
         self.assertIsNone(cmds.port)
 
-        cmd_config = read_config_file(cmds.config, "test")
+        cmd_config = read_config_file(cmds.config, self.subsection)
         self.assertEqual(3, len(vars(cmd_config)))
         self.assertEqual(2, cmd_config.verbose)
         self.assertIsInstance(cmd_config.developer, bool)
@@ -115,10 +117,10 @@ class ComplexTestCase(TestCase):
         self.assertEqual(self.value_file, envs.value4_file)
         self.assertEqual(self.cfg_file, envs.config)
 
-        envs_config = read_config_file(envs.config, "test")
+        envs_config = read_config_file(envs.config, self.subsection)
         self.assertEqual(2, len(vars(envs_config)))
         self.assertEqual("localhost", envs_config.host)
-        self.assertEqual("100", envs_config.counter)  # Warning, Not integer type.
+        self.assertEqual("100", envs_config.counter)  # Not integer type
 
         env_files_args = read_os_envs_file(prefix=self.prefix, suffix=self.suffix)
         self.assertEqual(1, len(vars(env_files_args)))
@@ -143,8 +145,22 @@ class ComplexTestCase(TestCase):
         self.assertEqual("ccc", result_args.value3)
         self.assertEqual(self.value_file, result_args.value4_file)
         self.assertEqual("localhost", result_args.host)
-        self.assertEqual("100", result_args.counter)  # Warning, Not integer type.
+        self.assertEqual("100", result_args.counter)
         self.assertEqual(VALUE_SAMPLE, result_args.value4)
+
+        # call read_generalize_configs method
+
+        generalize_result_args = read_generalize_configs(
+            parser=parser,
+            subsection=self.subsection,
+            env_prefix=self.prefix,
+            env_suffix=self.suffix,
+            config_key="config",
+            force=None,
+            default=default_args,
+            commandline=args,
+        )
+        self.assertEqual(result_args, generalize_result_args)
 
 
 if __name__ == "__main__":

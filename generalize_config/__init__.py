@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from generalize_config.generalize import read_generalize_configs
 from generalize_config.namespace.merge import merge_left_first, merge_right_first
 from generalize_config.namespace.strip import strip_none_attributes
 from generalize_config.parser.cfg_parse import read_cfg_file
@@ -17,6 +18,7 @@ __all__ = (
     "read_cfg_file",
     "read_config_file",
     "read_config_file_if_readable",
+    "read_generalize_configs",
     "read_json_file",
     "read_os_envs",
     "read_os_envs_file",
